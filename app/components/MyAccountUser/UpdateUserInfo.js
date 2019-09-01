@@ -44,14 +44,16 @@ export default class UpdateUserInfo extends Component {
             ]
         }
 
-      
+
     }
 
 
 
 
     updateUserDisplayName = async (newDisplayName) => {
-        await this.state.updateUserDisplayName(newDisplayName);
+        if (newDisplayName) {
+            this.state.updateUserDisplayName(newDisplayName);
+        }
         this.setState({
             overlayComponent: null
         });
@@ -64,7 +66,7 @@ export default class UpdateUserInfo extends Component {
     }
 
     openOverlay = (placeholder, updateFunction, inputValue) => {
-        
+
         this.setState({
             overlayComponent: (
                 <OverlayOneInput
