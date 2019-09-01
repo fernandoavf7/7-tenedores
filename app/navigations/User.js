@@ -11,6 +11,7 @@ import TopFiveScreen from "../views/TopFive";
 import SearchScreen from "../views/Search";
 import MyAccountScreen from "../views/MyAccount/MyAccount";
 import RegisterScreen from "../views/MyAccount/Register";
+import LoginScreen from "../views/MyAccount/Login";
 
 import { Icon } from 'react-native-elements';
 
@@ -53,6 +54,12 @@ const MyAccountScreenStack = createStackNavigator({
         screen: RegisterScreen,
         navigationOptions: ({ navigation }) => ({
             title: "Registro"
+        })
+    },
+    Login: {
+        screen: LoginScreen,
+        navigationOptions: ({ navigation }) => ({
+            title: "Ingresar"
         })
     }
 })
