@@ -17,7 +17,7 @@ export default class UpdateUserInfo extends Component {
                     iconColorLeft: "#CCC",
                     iconNameRight: "chevron-right",
                     iconColorRight: "#CCC",
-                    onPress: () => this.openOverlay("Nombre y Apellido", this.updateUserDisplayName, props.userInfo.displayName)
+                    onPress: () => this.openOverlay("Nombre y Apellido", this.updateUserDisplayName, this.props.userInfo.displayName)
                 },
                 {
                     title: "Cambiar email",
@@ -43,24 +43,35 @@ export default class UpdateUserInfo extends Component {
                 }
             ]
         }
+
+      
     }
 
 
+
+
     updateUserDisplayName = async (newDisplayName) => {
-        //console.log(newDisplayName)
-        this.state.updateUserDisplayName(newDisplayName);
+        await this.state.updateUserDisplayName(newDisplayName);
+        this.setState({
+            overlayComponent: null
+        });
+    }
+
+    cancelOverlay = async () => {
         this.setState({
             overlayComponent: null
         });
     }
 
     openOverlay = (placeholder, updateFunction, inputValue) => {
+        
         this.setState({
             overlayComponent: (
                 <OverlayOneInput
                     isVisibleOverlay={true}
                     placeholder={placeholder}
                     updateFunction={updateFunction}
+                    cancelOverlay={this.cancelOverlay}
                     value={inputValue}
                 />
 

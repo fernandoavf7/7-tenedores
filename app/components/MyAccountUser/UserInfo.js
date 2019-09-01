@@ -11,7 +11,7 @@ export default class UserInfo extends Component {
         this.state = {
             ...props,
             userInfo: {}
-        }
+        };
     }
 
     componentDidMount = async () => {
@@ -32,8 +32,13 @@ export default class UserInfo extends Component {
             : "https://api.adorable.io/avatars/285/abott@adorable.png";
     }
 
-    updateUserDisplayName = newDisplayName => {
-        console.log("userInfo" + newDisplayName)
+    updateUserDisplayName = async newDisplayName => {
+        const update = {
+            displayName: newDisplayName,
+
+        }
+        await firebase.auth().currentUser.updateProfile(update);
+        this.getUserInfo();
     }
 
     returnUpdateUserInfoComponent = userInfoData => {
@@ -41,11 +46,10 @@ export default class UserInfo extends Component {
             return (
                 <UpdateUserInfo
                     userInfo={this.state.userInfo}
-                    updateUserDisplayName={this.state.updateUserDisplayName}
+                    updateUserDisplayName={this.updateUserDisplayName}
                 />
             )
         }
-
     }
 
     render() {
@@ -60,11 +64,13 @@ export default class UserInfo extends Component {
                         source={{ uri: this.checkUserAvatar(photoUrl) }}
                         containerStyle={styles.userInfoAvatar}
                     />
-                    <Text style={styles.displayName}>{displayName}</Text>
-                    <Text>{email}</Text>
+                    <View>
+                        <Text style={styles.displayName}>{displayName}</Text>
+                        <Text>{email}</Text>
+                    </View>
                 </View>
                 {this.returnUpdateUserInfoComponent(this.state.userInfo)}
-             
+
             </View>
         )
     }

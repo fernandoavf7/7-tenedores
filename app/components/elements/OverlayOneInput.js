@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
-import { Button, Overlay, Input } from 'react-native-elements';
+import { Button, Overlay, Input, Divider } from 'react-native-elements';
 
 
 
@@ -16,37 +16,53 @@ export default class OverlayOneInput extends Component {
         this.setState({
             inputValue: inputData
         })
-       // console.log(this.state);
-
     }
 
     update = () => {
         const newValue = this.state.inputValue;
-        //console.log(this.state);
         this.state.updateFunction(newValue);
         this.setState({
             isVisibleOverlay: false
         });
     }
 
+    cancel = () => {
+        this.setState({
+            isVisibleOverlay: false
+        });
+        this.state.cancelOverlay();
+    }
+
+
     render() {
-        const { isVisibleOverlay, placeholder, inputValue } = this.state;
+        const { isVisibleOverlay, placeholder, value } = this.state;
+        console.log("render",this.state)
         return (
             <Overlay
                 isVisible={isVisibleOverlay}
                 overlayBackgroundColor="transparent"
                 overlayStyle={styles.overlyStyle} >
+
                 <View style={styles.viewOverlay}>
 
                     <Input
-                        placeholder={placeholder}
                         containerStyle={styles.inputContainer}
+                        placeholder={placeholder}
                         onChangeText={value => this.onChangeInput(value)}
-                        value={inputValue} />
-                    <Button
-                        buttonStyle={styles.buttonUpdate}
-                        title="Actualizar"
-                        onPress={() => this.update()} />
+                        value={value} />
+                    <View>
+                        <Button
+                            buttonStyle={styles.buttonCancel}
+                            title="Cancelar"
+                            onPress={() => this.cancel()}
+                        />
+                        
+                        <Button
+                            buttonStyle={styles.buttonUpdate}
+                            title="Actualizar"
+                            onPress={() => this.update()}
+                        />
+                    </View>
                 </View>
             </Overlay>
         )
@@ -55,9 +71,10 @@ export default class OverlayOneInput extends Component {
 
 const styles = StyleSheet.create({
     overlayStyle: {
-        flex: 1,
+        //flex: 1,
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        height: 200
     },
     viewOverlay: {
         width: "100%",
@@ -69,5 +86,8 @@ const styles = StyleSheet.create({
     },
     buttonUpdate: {
         backgroundColor: "#00A680"
+    },
+    buttonCancel: {
+        backgroundColor: "#C2C2C2"
     }
 })
