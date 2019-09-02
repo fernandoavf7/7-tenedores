@@ -3,6 +3,8 @@ import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import { Avatar } from "react-native-elements";
 import * as firebase from "firebase";
 import UpdateUserInfo from "./UpdateUserInfo";
+import Toast from "react-native-easy-toast";
+
 
 export default class UserInfo extends Component {
     constructor(props) {
@@ -26,6 +28,15 @@ export default class UserInfo extends Component {
 
     }
 
+    reauthenticate = currentPassword => {
+        const user = firebase.auth().currentUser;
+        const credential = firebase.auth.EmailAuthProvider.credential(
+            user.email,
+            currentPassword
+        );
+        return user.reauthenticateWithCredential(credential)
+    }
+
     checkUserAvatar = photoUrl => {
         return photoUrl
             ? photoUrl
@@ -41,12 +52,31 @@ export default class UserInfo extends Component {
         this.getUserInfo();
     }
 
+    updateUserEmail = async (newEmail, password) => {
+        this.reauthenticate(password).then(() => {
+            const user = firebase.auth().currentUser;
+
+            user.updateEmail(newEmail)
+                .then(() => {
+                    this.refs.toast.show("Email actualizado, vuelva  ainiciar sesión", 1500, () => {
+                        firebase.auth().signOut();
+                    })
+
+                }).catch(error => {
+                    this.refs.toast.show(error, 1500)
+                })
+        }).catch(error => {
+            this.refs.toast.show("Tu contraseña es incorrecta", 1500)
+        })
+    }
+
     returnUpdateUserInfoComponent = userInfoData => {
         if (userInfoData.hasOwnProperty("uid")) {
             return (
                 <UpdateUserInfo
                     userInfo={this.state.userInfo}
                     updateUserDisplayName={this.updateUserDisplayName}
+                    updateUserEmail={this.updateUserEmail}
                 />
             )
         }
@@ -70,7 +100,15 @@ export default class UserInfo extends Component {
                     </View>
                 </View>
                 {this.returnUpdateUserInfoComponent(this.state.userInfo)}
-
+                <Toast
+                    ref="toast"
+                    position="bottom"
+                    positionValue={250}
+                    fadeInDuration={1000}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{ color: "white" }}
+                />
             </View>
         )
     }

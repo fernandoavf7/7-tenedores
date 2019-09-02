@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import { ListItem } from 'react-native-elements';
 import OverlayOneInput from "./../elements/OverlayOneInput";
+import OverlayTwoInputs from "../elements/OverlayTwoInputs";
 
 export default class UpdateUserInfo extends Component {
     constructor(props) {
@@ -26,9 +27,7 @@ export default class UpdateUserInfo extends Component {
                     iconColorLeft: "#CCC",
                     iconNameRight: "chevron-right",
                     iconColorRight: "#CCC",
-                    onPress: () =>
-                        console.log("ha realizado email")
-
+                    onPress: () => this.openOverlayTwoInputs("Email", "Password", props.userInfo.email, props.updateUserEmail)
                 },
                 {
                     title: "Cambiar contraseña",
@@ -59,6 +58,23 @@ export default class UpdateUserInfo extends Component {
         });
     }
 
+    updateUserEmail = async (newEmail, password) => {
+        const emailOld = this.props.userInfo.email;
+
+        if (emailOld != newEmail) {
+            this.state.updateUserEmail(newEmail, password);
+
+        } else {
+            this.setState({
+                overlayComponent: null
+            });
+        }
+
+
+    }
+
+
+
     cancelOverlay = async () => {
         this.setState({
             overlayComponent: null
@@ -80,6 +96,35 @@ export default class UpdateUserInfo extends Component {
             )
         })
     }
+
+    openOverlayTwoInputs = (placeholderOne, placeholderTwo, inputValueOne, updateFunction) => {
+        console.log("openOverlayTwoInputs")
+        console.log(this.state)
+
+        this.setState({
+            overlayComponent: null
+        }, () => {
+            this.setState({
+                overlayComponent: (
+                    <OverlayTwoInputs
+                        isVisibleOverlay={true}
+                        placeholderOne={placeholderOne}
+                        placeholderTwo={placeholderTwo}
+                        inputValueOne={inputValueOne}
+                        inputValueTwo=""
+                        isPassword={true}
+                        updateFunction={updateFunction}
+                        cancelOverlay={this.cancelOverlay}
+                        value={inputValueOne}
+                    />
+
+                )
+            })
+        })
+
+
+    }
+
 
     render() {
         const { menuItems, overlayComponent } = this.state;
