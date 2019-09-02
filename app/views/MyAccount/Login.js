@@ -37,12 +37,12 @@ export default class Login extends Component {
             firebase.auth()
                 .signInWithEmailAndPassword(validate.email, validate.password)
                 .then(resolve => {
-                    console.log(resolve)
+                    //console.log(resolve)
                     this.refs.toast.show('Ha ingresado correctamente', 250, () => {
                         this.props.navigation.navigate("MyAccount");
                     });
                 }).catch(err => {
-                    console.log(err)
+                    //console.log(err)
                     if (err.toString().indexOf("The password is invalid or the user does not have a password") > 0) {
                         this.refs.toast.show('La contraseña es incorrecta', 250);
                     } else if (err.toString().indexOf("There is no user record corresponding to this identifier") > 0) {

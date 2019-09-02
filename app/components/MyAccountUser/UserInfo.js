@@ -4,7 +4,9 @@ import { Avatar } from "react-native-elements";
 import * as firebase from "firebase";
 import UpdateUserInfo from "./UpdateUserInfo";
 import Toast from "react-native-easy-toast";
-
+import * as  ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
+import './../elements/FixTimerAndroidBug';
 
 export default class UserInfo extends Component {
     constructor(props) {
@@ -18,6 +20,8 @@ export default class UserInfo extends Component {
 
     componentDidMount = async () => {
         await this.getUserInfo();
+        //console.log(this.state);
+
     }
 
     getUserInfo = () => {
@@ -70,6 +74,40 @@ export default class UserInfo extends Component {
         })
     }
 
+    logout = (message, time) => {
+        this.refs.toast.show(message, time, () => {
+            firebase.auth().signOut();
+        });
+    }
+
+    updateUserPassword = async (currentPassword, newPassword) => {
+        this.reauthenticate(currentPassword).then(() => {
+            const user = firebase.auth().currentUser;
+
+            user.updatePassword(newPassword)
+                .then(() => {
+                    this.refs.toast.show("Contraseña cambiada, vuelva  ainiciar sesión", 1500, () => {
+                        firebase.auth().signOut();
+                    })
+
+                }).catch(error => {
+                    this.refs.toast.show(error, 1500)
+                })
+        }).catch(error => {
+            this.refs.toast.show("La contraseña actual ingresada es incorrecta", 1500)
+        })
+    }
+
+    updateUserPhotoUri = async photoUri => {
+        const update = {
+            photoURL: photoUri,
+            phoneNumber: "12345678"
+
+        }
+        await firebase.auth().currentUser.updateProfile(update);
+        this.getUserInfo();
+    }
+
     returnUpdateUserInfoComponent = userInfoData => {
         if (userInfoData.hasOwnProperty("uid")) {
             return (
@@ -77,22 +115,76 @@ export default class UserInfo extends Component {
                     userInfo={this.state.userInfo}
                     updateUserDisplayName={this.updateUserDisplayName}
                     updateUserEmail={this.updateUserEmail}
+                    updateUserPassword={this.updateUserPassword}
                 />
             )
         }
     }
 
+
+    changeAvatarUser = async () => {
+
+        const resultPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if (resultPermission.status === "denied") {
+            this.refs.toast.show("Es necesario conceder permisos de acceso para cambiar la imagen", 1500)
+        } else {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [1, 1]
+            });
+
+            if (result.cancelled) {
+                this.refs.toast.show("Se ha cancelado el cambio de imagen", 1500);
+            } else {
+                const { uid } = this.state.userInfo;
+                this.uploadImage(result.uri, uid).then(resolve => {
+                    firebase.storage().ref("avatars/" + uid).getDownloadURL().then(resolve => {
+
+                        this.updateUserPhotoUri(resolve);
+                    }).catch(error => {
+                        this.refs.toast.show("Error al intentar cargar la imagen, inténtalo nuevamente.", 1500);
+                    })
+                })
+            }
+        }
+    }
+
+
+    uploadImage = async (uri, nameImage) => {
+
+        await fetch(uri)
+            .then(async result => {
+                firebaseStorage = firebase
+                    .storage()
+                    .ref()
+                    .child("avatars/" + nameImage);
+                await firebaseStorage.put(result._bodyBlob);
+
+                this.refs.toast.show("Imagen cambiada correctamente", 1500);
+            })
+            .catch(error => {
+                this.refs.toast.show("Ocurrio un error, inténtalo nuevamente.", 1500);
+            });
+
+
+    }
+
     render() {
 
-        const { displayName, email, photoUrl } = this.state.userInfo;
+        const { displayName, email, photoURL } = this.state.userInfo;
+        //console.log(photoURL);
+
         return (
             <View>
                 <View style={styles.viewUserInfo}>
                     <Avatar
                         rounded
                         size="large"
-                        source={{ uri: this.checkUserAvatar(photoUrl) }}
+                        source={{ uri: this.checkUserAvatar(photoURL) }}
                         containerStyle={styles.userInfoAvatar}
+                        showEditButton
+                        onEditPress={() => this.changeAvatarUser()}
                     />
                     <View>
                         <Text style={styles.displayName}>{displayName}</Text>
@@ -109,6 +201,10 @@ export default class UserInfo extends Component {
                     opacity={0.8}
                     textStyle={{ color: "white" }}
                 />
+                 <View style={styles.viewLogoutText}>
+                     <Text style={styles.textLogout} onPress={()=> this.logout("Cerrando sesión...", 1000)}>Cerrar Sesión</Text>
+                 </View>
+                 
             </View>
         )
     }
@@ -124,10 +220,24 @@ const styles = StyleSheet.create({
         paddingTop: 30,
         paddingBottom: 30
     },
+    viewLogoutText: {
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "row",
+        paddingTop: 30,
+        paddingBottom: 30
+    },
     userInfoAvatar: {
         marginRight: 20
     },
     displayName: {
         fontWeight: "bold"
+    },
+    textLogout: {
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#C2C2C2",
+        fontWeight: "bold",
+
     }
 })

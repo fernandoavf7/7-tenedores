@@ -42,7 +42,7 @@ export default class OverlayOneInput extends Component {
 
     render() {
         const { isVisibleOverlay, placeholder, inputValue } = this.state;
-        console.log("render", this.state)
+       // console.log("render", this.state)
         return (
             <Overlay
                 isVisible={isVisibleOverlay}

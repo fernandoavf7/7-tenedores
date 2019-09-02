@@ -34,12 +34,12 @@ export default class Register extends Component {
             if (validate) {
                 this.setState({ formErrorMessage: "" });
                 firebase.auth().createUserWithEmailAndPassword(validate.email, validate.password).then(resolve => {
-                    console.log(resolve)
+                  //  console.log(resolve)
                     this.refs.toast.show('Registrado correctamente', 250, () => {
                         this.props.navigation.navigate("MyAccount");
                     });
                 }).catch(err => {
-                    console.log(err)
+                   // console.log(err)
                     if (err.toString().indexOf("The email address is already in use") > 0) {
                         this.refs.toast.show('El email ingresado ya está en uso', 250);
                     } else {

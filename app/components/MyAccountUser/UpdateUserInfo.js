@@ -3,6 +3,9 @@ import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import { ListItem } from 'react-native-elements';
 import OverlayOneInput from "./../elements/OverlayOneInput";
 import OverlayTwoInputs from "../elements/OverlayTwoInputs";
+import OverlayThreeInputs from "../elements/OverlayThreeInputs";
+import Toast from "react-native-easy-toast";
+
 
 export default class UpdateUserInfo extends Component {
     constructor(props) {
@@ -27,7 +30,7 @@ export default class UpdateUserInfo extends Component {
                     iconColorLeft: "#CCC",
                     iconNameRight: "chevron-right",
                     iconColorRight: "#CCC",
-                    onPress: () => this.openOverlayTwoInputs("Email", "Password", props.userInfo.email, props.updateUserEmail)
+                    onPress: () => this.openOverlayTwoInputs("Email", "Password", props.userInfo.email, this.updateUserEmail)
                 },
                 {
                     title: "Cambiar contraseña",
@@ -36,8 +39,7 @@ export default class UpdateUserInfo extends Component {
                     iconColorLeft: "#CCC",
                     iconNameRight: "chevron-right",
                     iconColorRight: "#CCC",
-                    onPress: () =>
-                        console.log("ha realizado pass")
+                    onPress: () => this.openOverlayThreeInputs("Contraseña actual", "Nueva contraseña", "Repetir nueva contraseña", this.updateUserPassword)
 
                 }
             ]
@@ -61,7 +63,7 @@ export default class UpdateUserInfo extends Component {
     updateUserEmail = async (newEmail, password) => {
         const emailOld = this.props.userInfo.email;
 
-        if (emailOld != newEmail) {
+        if (emailOld != newEmail && password) {
             this.state.updateUserEmail(newEmail, password);
 
         } else {
@@ -69,10 +71,29 @@ export default class UpdateUserInfo extends Component {
                 overlayComponent: null
             });
         }
-
-
     }
 
+    updateUserPassword = async (currentPassword, newPassword, repeatedNewPassword) => {
+      // console.log("updateuserpass");
+ 
+
+       if(currentPassword && newPassword && repeatedNewPassword){
+        if(newPassword === repeatedNewPassword){
+            if(currentPassword === newPassword){
+                this.refs.toast.show("La nueva contraseña no puede ser igual a la contraseña actual",1500)
+            }else{
+                this.state.updateUserPassword(currentPassword, newPassword);
+            }
+        }else{
+            this.refs.toast.show("Las nuevas contraseñas no coinciden",1500)
+        }
+
+       }else{
+        this.refs.toast.show("Contraseña no cambiada, se deben rellenar todos los campos",1500)
+
+       }
+
+    }
 
 
     cancelOverlay = async () => {
@@ -98,8 +119,6 @@ export default class UpdateUserInfo extends Component {
     }
 
     openOverlayTwoInputs = (placeholderOne, placeholderTwo, inputValueOne, updateFunction) => {
-        console.log("openOverlayTwoInputs")
-        console.log(this.state)
 
         this.setState({
             overlayComponent: null
@@ -121,7 +140,33 @@ export default class UpdateUserInfo extends Component {
                 )
             })
         })
+    }
 
+
+    openOverlayThreeInputs = (placeholderOne, placeholderTwo, placeholderThree, updateFunction) => {
+
+
+        this.setState({
+            overlayComponent: null
+        }, () => {
+            this.setState({
+                overlayComponent: (
+                    <OverlayThreeInputs
+                        isVisibleOverlay={true}
+                        placeholderOne={placeholderOne}
+                        placeholderTwo={placeholderTwo}
+                        placeholderThree={placeholderThree}
+                        inputValueOne=""
+                        inputValueTwo=""
+                        inputValueThree=""
+                        isPassword={true}
+                        updateFunction={updateFunction}
+                        cancelOverlay={this.cancelOverlay}
+                    />
+
+                )
+            })
+        })
 
     }
 
@@ -144,6 +189,16 @@ export default class UpdateUserInfo extends Component {
                     ))
                 }
                 {overlayComponent}
+
+                <Toast
+                    ref="toast"
+                    position="center"
+                    positionValue={250}
+                    fadeInDuration={1000}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{ color: "white" }}
+                />
             </View>
         )
     }

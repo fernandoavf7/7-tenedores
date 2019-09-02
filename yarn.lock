@@ -2289,6 +2289,11 @@ expo-font@~6.0.1:
   dependencies:
     fontfaceobserver "^2.1.0"
 
+expo-image-picker@~6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/expo-image-picker/-/expo-image-picker-6.0.0.tgz#776f4487d986ba9cc82169a47445e8c13ca3108b"
+  integrity sha512-7IW4WxDe0xQclGhTnX3DOgTkMvt2kF/MNOPbk2y9fS5k/8am9I8jErjURPxRUGH7+TvYLEWPy63DRAJP7TYyEg==
+
 expo-keep-awake@~6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-6.0.0.tgz#e0d6d1263c6a73488272a62aef98312ab25cab1f"
@@ -2306,7 +2311,7 @@ expo-location@~6.0.0:
   dependencies:
     invariant "^2.2.4"
 
-expo-permissions@~6.0.0:
+expo-permissions@^6.0.0, expo-permissions@~6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/expo-permissions/-/expo-permissions-6.0.0.tgz#2943f1aa98de833b88cea73cf03d18d08957cb68"
   integrity sha512-O+RdyfGiq7i+5Vi9fE38DgKn436lNWiqhnS5/Z7CC00bmKahhjVMNDbZvNn/nrdRGyaPneJk1Co1s1sexSnv0A==
