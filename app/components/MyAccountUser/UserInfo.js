@@ -4,8 +4,11 @@ import { Avatar } from "react-native-elements";
 import * as firebase from "firebase";
 import UpdateUserInfo from "./UpdateUserInfo";
 import Toast from "react-native-easy-toast";
+
+//necessary for request permisisons in android and iphone
 import * as  ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+//necesary for android timer bug
 import './../elements/FixTimerAndroidBug';
 
 export default class UserInfo extends Component {

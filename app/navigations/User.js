@@ -6,21 +6,33 @@ import {
     createBottomTabNavigator
 } from "react-navigation";
 
-import HomeScreen from "../views/Home";
+
+//screens
 import TopFiveScreen from "../views/TopFive";
 import SearchScreen from "../views/Search";
+
+//MyAccount
 import MyAccountScreen from "../views/MyAccount/MyAccount";
 import RegisterScreen from "../views/MyAccount/Register";
 import LoginScreen from "../views/MyAccount/Login";
 
 import { Icon } from 'react-native-elements';
 
+//retaurants 
+import Restaurantscreen from "../components/restaurants/Restaurants";
+import AddRestaurantScreen from './../components/restaurants/AddRestaurant';
 
-const homeScreenStack = createStackNavigator({
-    Home: {
-        screen: HomeScreen,
+const restaurantsScreenStack = createStackNavigator({
+    Restaurants: {
+        screen: Restaurantscreen,
         navigationOptions: ({ navigation }) => ({
             title: "Home"
+        })
+    },
+    AddRestaurant: {
+        screen: AddRestaurantScreen,
+        navigationOptions: ({ navigation }) => ({
+            title: "Nuevo restaurante"
         })
     }
 })
@@ -66,8 +78,8 @@ const MyAccountScreenStack = createStackNavigator({
 
 const RootStack = createBottomTabNavigator(
     {
-        Home: {
-            screen: homeScreenStack,
+        Restaurants: {
+            screen: restaurantsScreenStack,
             navigationOptions: ({ navigation }) => ({
                 tabBarLabel: "Home",
                 tabBarIcon: ({ tintColor }) => (
@@ -126,8 +138,8 @@ const RootStack = createBottomTabNavigator(
 
     }
     , {
-        initialRouteName: "MyAccount",
-        order: ["Home", "TopFive", "Search","MyAccount"],
+        initialRouteName: "Restaurants",
+        order: ["Restaurants", "TopFive", "Search","MyAccount"],
         tabBarOptions: {
             inactiveTintColor: "#656565",
             activeTintColor: "#00A680"
