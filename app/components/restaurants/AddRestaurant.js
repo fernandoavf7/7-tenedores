@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import t from "tcomb-form-native";
 const Form = t.form.Form;
 import { AddRestaurantOptions, AddRestaurantStruct } from "../../forms/AddRestaurantForm";
-import { Icon, Image, Button } from "react-native-elements";
+import { Icon, Image, Button, Overlay } from "react-native-elements";
 
 import Toast from "react-native-easy-toast";
 import { ScrollView } from 'react-native-gesture-handler';
@@ -25,6 +25,7 @@ export default class AddRestaurant extends Component {
         super(props);
 
         this.state = {
+            loading: false,
             imageUriRestaurant: "",
             formData: {
                 name: "",
@@ -71,19 +72,54 @@ export default class AddRestaurant extends Component {
 
     addRestaurant = () => {
         const { imageUriRestaurant, } = this.state;
-        const { name, city, addres, description } = this.state.formData;
+        const { name, city, address, description } = this.state.formData;
+       
+        if (imageUriRestaurant && name && city && address && description) {
+            this.setState({ loading: true })
+            const data = {
+                name,
+                city,
+                address,
+                description,
+                image: "",
+                createAt: new Date()
+            }
 
-        UploadImage(imageUriRestaurant, "example01", "restaurants").then(() => {
-            console.log("todo ok");
-
-        }).catch(error => {
-            console.log(error);
-
-        })
+            db.collection("restaurants").add(data).then(resolve => {
+                //get id document from recent document created in firestore
+                const restaurantId = resolve.id;
+                //upload the image to storage in firebase
+                UploadImage(imageUriRestaurant, restaurantId, "restaurants")
+                    .then(resolve => {
+                        //when image is uploaded we got the url of it, we have to get now the
+                        //register by id and do an update with the url of the image
+                        const restaurantRef = db.collection("restaurants").doc(restaurantId);
+                        restaurantRef.update({ image: resolve }).then(() => {
+                            this.setState({ loading: false })
+                            this.refs.toast.show("Restaurante creado correctamente", 1500, () => {
+                                this.props.navigation.goBack();
+                            })
+                        }).catch(error => {
+                            this.setState({ loading: false })
+                            this.refs.toast.show("Error de servidor, intentelo más tarde", 1500)
+                        })
+                    }).catch(error => {
+                        this.setState({ loading: false })
+                        this.refs.toast.show("Error de servidor, intentelo más tarde", 1500)
+                    })
+            }).catch(error => {
+                this.setState({ loading: false })
+                this.refs.toast.show("Error de servidor, intentelo más tarde", 1500)
+            })
+        } else {
+            this.setState({ loading: false })
+            this.refs.toast.show("Se deben rellenar todos los campos", 1500)
+        }
     }
 
     render() {
-        console.log(this.state)
+       
+        //console.log(this.state)
         const { imageUriRestaurant } = this.state;
         return (
             <ScrollView>
@@ -117,15 +153,30 @@ export default class AddRestaurant extends Component {
                         />
                     </View>
 
+                    <Overlay
+                        overlayStyle={styles.overlayLoading}
+                        isVisible={this.state.loading}
+                        width="auto"
+                        height="auto"
+                    >
+
+                        <View>
+                            <Text style={styles.overlayLoadingText}>Creando restaurante</Text>
+                            <ActivityIndicator size="large" color="#00a680" />
+                        </View>
+                    </Overlay>
+
                     <Toast
                         ref="toast"
                         position="bottom"
-                        positionValue={320}
-                        fadeInDuration={1000}
-                        fadeOutDuration={1000}
+                        positionValue={100}
+                        fadeInDuration={250}
+                        fadeOutDuration={250}
                         opacity={0.8}
                         textStyle={{ color: "white" }}
                     />
+
+
                 </View>
             </ScrollView>
         )
@@ -165,5 +216,13 @@ const styles = StyleSheet.create({
     btnAddRestaurant: {
         backgroundColor: "#00A680",
         marginTop: 20
+    },
+    overlayLoading: {
+        padding: 20
+    },
+    overlayLoadingText: {
+        color: "#00a680",
+        marginBottom: 20,
+        fontSize: 20
     }
 })

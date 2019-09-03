@@ -55,7 +55,9 @@ export default class OverlayTwoInputs extends Component {
             <Overlay
                 isVisible={isVisibleOverlay}
                 overlayBackgroundColor="transparent"
-                overlayStyle={styles.overlyStyle} >
+                overlayStyle={styles.overlyStyle}
+                fullScreen={true}
+            >
 
                 <View style={styles.viewOverlay}>
 

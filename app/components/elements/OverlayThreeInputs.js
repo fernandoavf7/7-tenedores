@@ -10,7 +10,7 @@ export default class OverlayThreeInputs extends Component {
         this.state = {
             ...props
         }
-        
+
     }
 
     componentDidMount() {
@@ -59,12 +59,13 @@ export default class OverlayThreeInputs extends Component {
     render() {
         //console.log("render", this.state)
         const { isVisibleOverlay, placeholderOne, placeholderTwo, placeholderThree, inputValueOne, inputValueTwo, inputValueThree, isPassword } = this.state;
-     
+
         return (
             <Overlay
                 isVisible={isVisibleOverlay}
                 overlayBackgroundColor="transparent"
-                overlayStyle={styles.overlyStyle} >
+                overlayStyle={styles.overlyStyle}
+                fullScreen={true}>
 
                 <View style={styles.viewOverlay}>
 

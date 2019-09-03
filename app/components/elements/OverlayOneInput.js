@@ -12,7 +12,7 @@ export default class OverlayOneInput extends Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.setState({
             inputValue: this.state.value
         })
@@ -42,12 +42,13 @@ export default class OverlayOneInput extends Component {
 
     render() {
         const { isVisibleOverlay, placeholder, inputValue } = this.state;
-       // console.log("render", this.state)
+        // console.log("render", this.state)
         return (
             <Overlay
                 isVisible={isVisibleOverlay}
                 overlayBackgroundColor="transparent"
-                overlayStyle={styles.overlyStyle} >
+                overlayStyle={styles.overlyStyle}
+                fullScreen={true} >
 
                 <View style={styles.viewOverlay}>
 
@@ -55,7 +56,8 @@ export default class OverlayOneInput extends Component {
                         containerStyle={styles.inputContainer}
                         placeholder={placeholder}
                         onChangeText={v => this.onChangeInput(v)}
-                        value={inputValue} />
+                        value={inputValue}
+                    />
 
 
                     <Button
@@ -80,7 +82,7 @@ export default class OverlayOneInput extends Component {
 
 const styles = StyleSheet.create({
     overlayStyle: {
-        //flex: 1,
+        flex: 1,
         alignItems: "center",
         justifyContent: "center",
         height: 200
