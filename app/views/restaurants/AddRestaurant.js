@@ -11,9 +11,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 import * as  ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 //necesary for android timer bug
-import './../elements/FixTimerAndroidBug';
+import '../../components/elements/FixTimerAndroidBug';
 
-import { UploadImage } from "./../../utils/UploadImage";
+import { UploadImage } from "../../utils/UploadImage";
 import { firebaseApp } from "../../utils/Firebase";
 import firebase from "firebase/app";
 import "firebase/firestore";

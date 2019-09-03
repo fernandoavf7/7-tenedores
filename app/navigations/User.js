@@ -19,8 +19,8 @@ import LoginScreen from "../views/MyAccount/Login";
 import { Icon } from 'react-native-elements';
 
 //retaurants 
-import Restaurantscreen from "../components/restaurants/Restaurants";
-import AddRestaurantScreen from './../components/restaurants/AddRestaurant';
+import Restaurantscreen from "./../views/restaurants/Restaurants";
+import AddRestaurantScreen from "./../views/restaurants/AddRestaurant";
 
 const restaurantsScreenStack = createStackNavigator({
     Restaurants: {
