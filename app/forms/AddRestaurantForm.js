@@ -38,7 +38,7 @@ export const AddRestaurantOptions = {
             }   },
         description: {template: TextAreaTemplate,
             config: {
-                placeholder: "Nombre del restaurante",
+                placeholder: "Descripción del restaurante",
                 iconType: "material-community",
                 iconName: "silverware"
             }   }
