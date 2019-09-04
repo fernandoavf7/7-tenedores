@@ -20,34 +20,90 @@ import Toast, { DURATION } from "react-native-easy-toast";
 import { firebaseApp } from "./../../utils/Firebase";
 import firebase from "firebase/app";
 import "firebase/firestore";
+
 const db = firebase.firestore(firebaseApp);
 
 export default class Restaurant extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            currentUser: null,
+            reviewed: null
+        }
+    }
+
+    componentDidMount = async () => {
+        const currentUser = await firebase.auth().currentUser;
+        if (currentUser) {
+            this.setState({ currentUser })
+        }
+        this.checkAddReviewUser();
+
     }
 
     checkUserLogin = () => {
-        const user = firebase.auth().currentUser;
-        if (user) {
+        if (this.state.currentUser != null) {
             return true;
         } else {
             return false;
         }
     }
 
+    checkAddReviewUser = () => {
+        if (this.state.currentUser != null) {
+            const user = this.state.currentUser;
+            const idUser = user.uid;
+            const idRestaurant = this.props.navigation.state.params.restaurant.item.restaurant.id;
+            const reviewsRef = db.collection("reviews");
+            const queryRef = reviewsRef
+                .where("idUser", "==", idUser)
+                .where("idRestaurant", "==", idRestaurant);
+
+            return queryRef.get().then(resolve => {
+                const countReview = resolve.size;
+                console.log(countReview);
+                if (countReview > 0) {
+                    this.setState({ reviewed: true })
+                } else {
+                    this.setState({ reviewed: false })
+                }
+            })
+        } else {
+            this.setState({ reviewed: false })
+        }
+    }
+
     loadButtonAddReview = () => {
+
+        console.log(this.state);
+
         const { id, name } = this.props.navigation.state.params.restaurant.item.restaurant;
         if (this.checkUserLogin()) {
-            return (
-                <View style={styles.viewBtnAddReview}>
-                    <Button
-                        title="Añadir comentario"
-                        onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
-                        buttonStyle={styles.btnAddReview} />
-                </View>
-            )
+
+            if (this.state.reviewed != null) {
+                if (this.state.reviewed) {
+                    return (
+                        <View style={styles.viewBtnAddReview}>
+                            <Button
+                                title="Modificar comentario"
+                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
+                                buttonStyle={styles.btnAddReview} />
+                        </View>
+                    )
+                } else {
+                    return (
+                        <View style={styles.viewBtnAddReview}>
+                            <Button
+                                title="Añadir comentario"
+                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
+                                buttonStyle={styles.btnAddReview} />
+                        </View>
+                    )
+                }
+            } else {
+                return null;
+            }
         }
         else {
             return (
@@ -145,6 +201,6 @@ const styles = {
     },
     textLinkLogin: {
         color: "#00a680",
-        fontSize: "bold"
+        fontWeight: "bold"
     }
 }
