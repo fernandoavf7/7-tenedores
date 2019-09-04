@@ -24,6 +24,7 @@ export default class AddRestaurant extends Component {
     constructor(props) {
         super(props);
 
+        console.log(this.props.navigation.state.params)
         this.state = {
             loading: false,
             imageUriRestaurant: "",
@@ -97,6 +98,7 @@ export default class AddRestaurant extends Component {
                         restaurantRef.update({ image: resolve }).then(() => {
                             this.setState({ loading: false })
                             this.refs.toast.show("Restaurante creado correctamente", 1500, () => {
+                                this.props.navigation.state.params.loadRestaurants();
                                 this.props.navigation.goBack();
                             })
                         }).catch(error => {
@@ -169,7 +171,7 @@ export default class AddRestaurant extends Component {
                     <Toast
                         ref="toast"
                         position="bottom"
-                        positionValue={100}
+                        positionValue={250}
                         fadeInDuration={250}
                         fadeOutDuration={250}
                         opacity={0.8}

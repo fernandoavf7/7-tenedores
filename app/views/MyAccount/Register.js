@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator, KeyboardAvoidingView } from "react-native";
 import t from "tcomb-form-native";
 const Form = t.form.Form;
 import { RegisterStruct, RegisterOptions } from "../../forms/RegisterForm";
 import { Button, Image } from 'react-native-elements';
 import * as firebase from "firebase";
 import Toast, { DURATION } from "react-native-easy-toast";
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default class Register extends Component {
     constructor() {
@@ -34,12 +35,12 @@ export default class Register extends Component {
             if (validate) {
                 this.setState({ formErrorMessage: "" });
                 firebase.auth().createUserWithEmailAndPassword(validate.email, validate.password).then(resolve => {
-                  //  console.log(resolve)
+                    //  console.log(resolve)
                     this.refs.toast.show('Registrado correctamente', 250, () => {
                         this.props.navigation.navigate("MyAccount");
                     });
                 }).catch(err => {
-                   // console.log(err)
+                    // console.log(err)
                     if (err.toString().indexOf("The email address is already in use") > 0) {
                         this.refs.toast.show('El email ingresado ya está en uso', 250);
                     } else {
@@ -66,33 +67,38 @@ export default class Register extends Component {
 
         const { registerStruct, registerOptions, formErrorMessage } = this.state;
         return (
-            <View style={styles.container}>
-                <Image
-                    source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
-                    style={styles.logo}
-                    PlaceholderContent={<ActivityIndicator />}
-                    resizeMode="contain"
-                />
-                <Form
-                    ref="registerForm"
-                    type={registerStruct}
-                    options={registerOptions}
-                    value={this.state.formData}
-                    onChange={v => this.onChangeFormRegister(v)}
-                />
-                <Button title="Registrar" onPress={() => this.register()} />
-                <Text style={styles.formErrorMessage}>{formErrorMessage}</Text>
-                <Toast
-                    ref="toast"
-                    style={{ backgroundColor: 'black' }}
-                    position='bottom'
-                    positionValue={200}
-                    fadeInDuration={750}
-                    fadeOutDuration={1000}
-                    opacity={0.8}
-                    textStyle={{ color: 'white' }}
-                />
-            </View>
+            <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+                <ScrollView style={styles.scrollView}>
+                    <View style={styles.container}>
+                        <Image
+                            source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
+                            style={styles.logo}
+                            PlaceholderContent={<ActivityIndicator />}
+                            resizeMode="contain"
+                        />
+                        <Form
+                            ref="registerForm"
+                            type={registerStruct}
+                            options={registerOptions}
+                            value={this.state.formData}
+                            onChange={v => this.onChangeFormRegister(v)}
+                        />
+                        <Button title="Registrar" onPress={() => this.register()} />
+                        <Text style={styles.formErrorMessage}>{formErrorMessage}</Text>
+                        <Toast
+                            ref="toast"
+                            style={{ backgroundColor: 'black' }}
+                            position='bottom'
+                            positionValue={200}
+                            fadeInDuration={750}
+                            fadeOutDuration={1000}
+                            opacity={0.8}
+                            textStyle={{ color: 'white' }}
+                        />
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+
         )
     }
 }
@@ -104,6 +110,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF",
         justifyContent: "center",
         backgroundColor: "#FFF",
+
+    },
+    scrollView: {
         padding: 20,
     },
     buttonRegisterContainer: {
