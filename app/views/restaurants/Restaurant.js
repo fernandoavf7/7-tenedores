@@ -17,14 +17,47 @@ import {
 } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
 
-//import { firebaseApp } from "../../utils/FireBase";
-//import firebase from "firebase/app";
-//import "firebase/firestore";
-//const db = firebase.firestore(firebaseApp);
+import { firebaseApp } from "./../../utils/Firebase";
+import firebase from "firebase/app";
+import "firebase/firestore";
+const db = firebase.firestore(firebaseApp);
 
 export default class Restaurant extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
+    checkUserLogin = () => {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    loadButtonAddReview = () => {
+        const { id, name } = this.props.navigation.state.params.restaurant.item.restaurant;
+        if (this.checkUserLogin()) {
+            return (
+                <View style={styles.viewBtnAddReview}>
+                    <Button
+                        title="Añadir comentario"
+                        onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
+                        buttonStyle={styles.btnAddReview} />
+                </View>
+            )
+        }
+        else {
+            return (
+                <Text onPress={() => this.props.navigation.navigate("Login")} style={styles.textLinkLogin}>Debe iniciar sesión para escribir una reseña</Text>
+            )
+        }
+    }
+
     render() {
-        const { name, city, address, description, image } = this.props.navigation.state.params.restaurant.item.restaurant;
+        const { id, name, city, address, description, image } = this.props.navigation.state.params.restaurant.item.restaurant;
         const listExtraInfo = [
             {
                 text: `${city}, ${address}`,
@@ -65,6 +98,8 @@ export default class Restaurant extends Component {
 
                 </View>
 
+                {this.loadButtonAddReview()}
+
             </View>
         );
     }
@@ -101,5 +136,15 @@ const styles = {
         fontSize: 20,
         fontWeight: "bold",
         marginBottom: 10
+    },
+    viewBtnAddReview: {
+        margin: 20
+    },
+    btnAddReview: {
+        backgroundColor: "#00a680"
+    },
+    textLinkLogin: {
+        color: "#00a680",
+        fontSize: "bold"
     }
 }

@@ -22,6 +22,7 @@ import { Icon } from 'react-native-elements';
 import Restaurantscreen from "./../views/restaurants/Restaurants";
 import AddRestaurantScreen from "./../views/restaurants/AddRestaurant";
 import RestaurantScreen from "./../views/restaurants/Restaurant";
+import AddReviewRestaurantScreen from "./../views/restaurants/AddReviewRestaurant";
 
 const restaurantsScreenStack = createStackNavigator({
     Restaurants: {
@@ -41,6 +42,12 @@ const restaurantsScreenStack = createStackNavigator({
         navigationOptions: ({ navigation }) => ({
             
             title: navigation.state.params.restaurant.item.restaurant.name
+        })
+    },
+    AddReviewRestaurant: {
+        screen: AddReviewRestaurantScreen,
+        navigationOptions: ({ navigation }) => ({
+            title: navigation.state.params.name
         })
     }
 })
