@@ -23,6 +23,7 @@ import Restaurantscreen from "./../views/restaurants/Restaurants";
 import AddRestaurantScreen from "./../views/restaurants/AddRestaurant";
 import RestaurantScreen from "./../views/restaurants/Restaurant";
 import AddReviewRestaurantScreen from "./../views/restaurants/AddReviewRestaurant";
+import PhoneNumberRegisterScreen from "./../views/MyAccount/Test";
 
 const restaurantsScreenStack = createStackNavigator({
     Restaurants: {
@@ -87,6 +88,12 @@ const MyAccountScreenStack = createStackNavigator({
         screen: LoginScreen,
         navigationOptions: ({ navigation }) => ({
             title: "Ingresar"
+        })
+    },
+    PhoneNumberRegister: {
+        screen: PhoneNumberRegisterScreen,
+        navigationOptions: ({ navigation }) => ({
+            title: "Registrar N°"
         })
     }
 })
