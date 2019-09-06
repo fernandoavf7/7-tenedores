@@ -13,7 +13,7 @@ import {
     Button,
     Text,
     Rating,
-    Avatar
+    Avatar,
 } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
 
@@ -29,7 +29,9 @@ export default class Restaurant extends Component {
 
         this.state = {
             currentUser: null,
-            reviewed: null
+            reviewed: null,
+            limitReviews: 5,
+            reviews: null
         }
     }
 
@@ -39,7 +41,29 @@ export default class Restaurant extends Component {
             this.setState({ currentUser })
         }
         this.checkAddReviewUser();
+        this.loadReview();
 
+    }
+
+    loadReview = async () => {
+        const { limitReviews } = this.state;
+        const { id } = this.props.navigation.state.params.restaurant.item.restaurant;
+
+        let resultReviews = [];
+
+        const reviews = db.collection("reviews").where("idRestaurant", "==", id).limit(limitReviews);
+
+        return await reviews.get().then(response => {
+            this.setState({ startReview: response.docs[response.docs.length - 1] });
+
+
+            response.forEach(doc => {
+                let review = doc.data();
+                resultReviews.push(review);
+            })
+
+            this.setState({ reviews: resultReviews });
+        })
     }
 
     checkUserLogin = () => {
@@ -62,7 +86,7 @@ export default class Restaurant extends Component {
 
             return queryRef.get().then(resolve => {
                 const countReview = resolve.size;
-                console.log(countReview);
+                // console.log(countReview);
                 if (countReview > 0) {
                     this.setState({ reviewed: true })
                 } else {
@@ -76,7 +100,7 @@ export default class Restaurant extends Component {
 
     loadButtonAddReview = () => {
 
-        console.log(this.state);
+        // console.log(this.state);
 
         const { id, name } = this.props.navigation.state.params.restaurant.item.restaurant;
         if (this.checkUserLogin()) {
@@ -112,6 +136,47 @@ export default class Restaurant extends Component {
         }
     }
 
+    renderFlatList = reviews => {
+        if (reviews) {
+            return (
+                <FlatList
+                    data={reviews}
+                    renderItem={this.renderRow}
+                    keyExtractor={(item, index) => index.toString()}
+                    onEndReachedThreshold={0.5}
+                />
+            )
+        } else {
+            return (
+                <View style={styles.startLoadReview}>
+                    <ActivityIndicator size="large" />
+                    <Text>Cargando reviews...</Text>
+                </View>
+            )
+        }
+    }
+
+    renderRow = (reviewData) => {
+        const { title, review, rating, idUser, createAt } = reviewData.item;
+        const createdReviewDate = new Date(createAt.seconds * 1000)
+        console.log(createdReviewDate);
+
+        return (
+            <View style={styles.viewReview}>
+                <View style={styles.viewImage}>
+                    <Avatar
+                        source={{
+                            uri: "https://api.adorable.io/avatars/285/abott@adorable.png"
+                        }}
+                        size="large"
+                        rounded
+                        containerStyle={styles.imageAvatarUser}
+                    />
+                </View>
+            </View>
+        )
+    }
+
     render() {
         const { id, name, city, address, description, image } = this.props.navigation.state.params.restaurant.item.restaurant;
         const listExtraInfo = [
@@ -123,40 +188,46 @@ export default class Restaurant extends Component {
             }
         ];
 
+        const { reviews } = this.state;
+
         return (
-            <View style={styles.viewBody}>
-                <View style={styles.viewImage}>
-                    <Image
-                        source={{ uri: image }}
-                        placeholderContent={<ActivityIndicator />}
-                        style={styles.imageRestaurant}
-                    />
-                </View>
-
-                <View style={styles.viewRestaurantBasicInfo}>
-                    <Text style={styles.nameRestaurant}>{name}</Text>
-                    <Text style={styles.descriptionRestaurant}>{description}</Text>
-                    <Text style={styles.descriptionRestaurant}>{listExtraInfo[0].text}</Text>
-                    <Text style={styles.descriptionRestaurant}>{city}</Text>
-                </View>
-
-                <View style={styles.viewRestaurantExtraInfo}>
-                    <Text style={styles.restaurantExtraInfoTitle}>
-                        Información sobre el restaurante
-                        </Text>
-                    {listExtraInfo.map((item, index) => (
-                        <ListItem
-                            key={index}
-                            title={item.text}
-                            leftIcon={<Icon name={item.iconName} type={item.iconType} />}
+            <ScrollView>
+                <View style={styles.viewBody}>
+                    <View style={styles.viewImage}>
+                        <Image
+                            source={{ uri: image }}
+                            placeholderContent={<ActivityIndicator />}
+                            style={styles.imageRestaurant}
                         />
-                    ))}
+                    </View>
+
+                    <View style={styles.viewRestaurantBasicInfo}>
+                        <Text style={styles.nameRestaurant}>{name}</Text>
+                        <Text style={styles.descriptionRestaurant}>{description}</Text>
+                        <Text style={styles.descriptionRestaurant}>{listExtraInfo[0].text}</Text>
+                        <Text style={styles.descriptionRestaurant}>{city}</Text>
+                    </View>
+
+                    <View style={styles.viewRestaurantExtraInfo}>
+                        <Text style={styles.restaurantExtraInfoTitle}>
+                            Información sobre el restaurante
+                        </Text>
+                        {listExtraInfo.map((item, index) => (
+                            <ListItem
+                                key={index}
+                                title={item.text}
+                                leftIcon={<Icon name={item.iconName} type={item.iconType} />}
+                            />
+                        ))}
+
+                    </View>
+
+                    {this.loadButtonAddReview()}
+
+                    {this.renderFlatList(reviews)}
 
                 </View>
-
-                {this.loadButtonAddReview()}
-
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -202,5 +273,23 @@ const styles = {
     textLinkLogin: {
         color: "#00a680",
         fontWeight: "bold"
+    },
+    startLoadReview: {
+        marginTop: 20,
+        alignItems: "center"
+    },
+    viewReview: {
+        flexDirection: "row",
+        margin: 10,
+        paddingBottom: 20,
+        borderBottomColor: "#e3e3e3",
+        borderBottomWidth: 1
+    },
+    viewImage: {
+        marginRight: 15
+    },
+    imageAvatarUser: {
+        width: 50,
+        height: 50
     }
 }

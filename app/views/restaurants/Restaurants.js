@@ -2,12 +2,11 @@ import React, { Component } from "react";
 import {
   StyleSheet,
   View,
-  Text,
   FlatList,
   ActivityIndicator,
   TouchableOpacity
 } from "react-native";
-import { Image } from "react-native-elements";
+import { Image, Text, Rating, Avatar } from "react-native-elements";
 
 import ActionButton from "react-native-action-button";
 
@@ -209,6 +208,8 @@ export default class Restaurants extends Component {
   render() {
     const { restaurants } = this.state;
 
+  //  console.log(this.state);
+    
     return (
       <View style={styles.viewBody}>
         {this.renderFlatList(restaurants)}
