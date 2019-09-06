@@ -73,7 +73,7 @@ export default class Restaurants extends Component {
 
     const restaurants = db
       .collection("restaurants")
-      .orderBy("createAt", "desc")
+      .orderBy("createdAt", "desc")
       .limit(limitRestaurants);
 
     await restaurants.get().then(response => {
@@ -104,8 +104,8 @@ export default class Restaurants extends Component {
 
     const restaurantsDb = db
       .collection("restaurants")
-      .orderBy("createAt", "desc")
-      .startAfter(startRestaurants.data().createAt)
+      .orderBy("createdAt", "desc")
+      .startAfter(startRestaurants.data().createdAt)
       .limit(limitRestaurants);
 
     await restaurantsDb.get().then(response => {

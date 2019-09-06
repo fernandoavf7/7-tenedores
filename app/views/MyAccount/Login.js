@@ -101,7 +101,7 @@ export default class Login extends Component {
                 />
                 <Button title="Ingresar" onPress={() => this.login()} />
                 <Text style={styles.textRegister}>¿Aún no tienes una cuenta?{" "}
-                <Text style={styles.buttonRegister} onPress={()=> this.props.navigation.navigate("PhoneNumberRegister")}>Regístrate</Text>
+                <Text style={styles.buttonRegister} onPress={()=> this.props.navigation.navigate("Register")}>Regístrate</Text>
                 </Text>
 
 

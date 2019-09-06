@@ -28,6 +28,8 @@ export default class AddReviewRestaurant extends Component {
 
     sendReview = () => {
 
+        const user = firebase.auth().currentUser;
+
         const ratingValue = this.refs.rating.state.position;
         if (ratingValue == 0) {
             this.refs.toast.show("Debe puntear el restaurante", 1500);
@@ -44,15 +46,17 @@ export default class AddReviewRestaurant extends Component {
                 const user = firebase.auth().currentUser;
                 const data = {
                     idUser: user.uid,
+                    avatarUser: user.photoURL,
                     idRestaurant: this.props.navigation.state.params.id,
                     title: validate.title,
                     review: validate.review,
                     rating: ratingValue,
-                    createAt: new Date()
+                    createdAt: new Date()
                 }
                 db.collection("reviews").add(data).then(() => {
                     this.setState({ loading: false });
                     this.refs.toast.show("Review ingresada correctamente", 1500, () => {
+                        this.props.navigation.state.params.loadReviews();
                         this.props.navigation.goBack();
                     });
 

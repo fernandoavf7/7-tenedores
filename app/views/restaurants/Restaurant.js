@@ -16,6 +16,7 @@ import {
     Avatar,
 } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
+import { checkUserAvatar, formatDate } from "./../../utils/Functions";
 
 import { firebaseApp } from "./../../utils/Firebase";
 import firebase from "firebase/app";
@@ -31,7 +32,8 @@ export default class Restaurant extends Component {
             currentUser: null,
             reviewed: null,
             limitReviews: 5,
-            reviews: null
+            reviews: null,
+            averageRating: 0,
         }
     }
 
@@ -41,15 +43,18 @@ export default class Restaurant extends Component {
             this.setState({ currentUser })
         }
         this.checkAddReviewUser();
-        this.loadReview();
+        this.loadReviews();
 
     }
 
-    loadReview = async () => {
+    loadReviews = async () => {
         const { limitReviews } = this.state;
         const { id } = this.props.navigation.state.params.restaurant.item.restaurant;
 
         let resultReviews = [];
+        let arrayRating = [];
+
+
 
         const reviews = db.collection("reviews").where("idRestaurant", "==", id).limit(limitReviews);
 
@@ -60,9 +65,21 @@ export default class Restaurant extends Component {
             response.forEach(doc => {
                 let review = doc.data();
                 resultReviews.push(review);
+                arrayRating.push(doc.data().rating)
             })
 
-            this.setState({ reviews: resultReviews });
+            let numSum = 0;
+
+            arrayRating.map(value => {
+                numSum = numSum + value;
+            })
+
+            const countRating = arrayRating.length;
+            const averageRating = (numSum / countRating);
+            // console.log(averageRating);
+            const ResultAverageRating = averageRating ? averageRating : 0;
+
+            this.setState({ reviews: resultReviews, averageRating: ResultAverageRating });
         })
     }
 
@@ -111,7 +128,7 @@ export default class Restaurant extends Component {
                         <View style={styles.viewBtnAddReview}>
                             <Button
                                 title="Modificar comentario"
-                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
+                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name, loadReviews: this.loadReviews })}
                                 buttonStyle={styles.btnAddReview} />
                         </View>
                     )
@@ -120,7 +137,7 @@ export default class Restaurant extends Component {
                         <View style={styles.viewBtnAddReview}>
                             <Button
                                 title="Añadir comentario"
-                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name })}
+                                onPress={() => this.props.navigation.navigate("AddReviewRestaurant", { id, name, loadReviews: this.loadReviews })}
                                 buttonStyle={styles.btnAddReview} />
                         </View>
                     )
@@ -138,6 +155,7 @@ export default class Restaurant extends Component {
 
     renderFlatList = reviews => {
         if (reviews) {
+            //  this.setState({noComments: false})
             return (
                 <FlatList
                     data={reviews}
@@ -147,6 +165,7 @@ export default class Restaurant extends Component {
                 />
             )
         } else {
+            // this.setState({noComments: true})
             return (
                 <View style={styles.startLoadReview}>
                     <ActivityIndicator size="large" />
@@ -157,25 +176,37 @@ export default class Restaurant extends Component {
     }
 
     renderRow = (reviewData) => {
-        const { title, review, rating, idUser, createAt } = reviewData.item;
-        const createdReviewDate = new Date(createAt.seconds * 1000)
+        const { title, review, rating, idUser, createdAt, avatarUser } = reviewData.item;
+        const createdReviewDate = new Date(createdAt.seconds * 1000)
         console.log(createdReviewDate);
 
         return (
             <View style={styles.viewReview}>
-                <View style={styles.viewImage}>
+                <View style={styles.viewImageAvatar}>
                     <Avatar
                         source={{
-                            uri: "https://api.adorable.io/avatars/285/abott@adorable.png"
+                            uri: checkUserAvatar(avatarUser)
                         }}
                         size="large"
                         rounded
                         containerStyle={styles.imageAvatarUser}
                     />
                 </View>
+
+                <View style={styles.viewInfo}>
+                    <Rating
+                        readonly
+                        imageSize={15}
+                        startingValue={rating}
+                    />
+                    <Text style={styles.reviewTitle}>{title}</Text>
+                    <Text style={styles.reviewText}>{review}</Text>
+                    <Text style={styles.reviewDate} >{formatDate(createdReviewDate)}</Text>
+                </View>
             </View>
         )
     }
+
 
     render() {
         const { id, name, city, address, description, image } = this.props.navigation.state.params.restaurant.item.restaurant;
@@ -188,7 +219,13 @@ export default class Restaurant extends Component {
             }
         ];
 
-        const { reviews } = this.state;
+        const { reviews, averageRating } = this.state;
+        let noComments = false;
+        if (reviews) {
+            if (reviews.length == 0) {
+                noComments = true;
+            }
+        }
 
         return (
             <ScrollView>
@@ -202,10 +239,16 @@ export default class Restaurant extends Component {
                     </View>
 
                     <View style={styles.viewRestaurantBasicInfo}>
-                        <Text style={styles.nameRestaurant}>{name}</Text>
+                        <View>
+                            <Text style={styles.nameRestaurant}>{name}</Text>
+                            <Rating
+                                style={{ position: "absolute", right: 0 }}
+                                imageSize={20}
+                                readonly
+                                startingValue={averageRating}
+                            />
+                        </View>
                         <Text style={styles.descriptionRestaurant}>{description}</Text>
-                        <Text style={styles.descriptionRestaurant}>{listExtraInfo[0].text}</Text>
-                        <Text style={styles.descriptionRestaurant}>{city}</Text>
                     </View>
 
                     <View style={styles.viewRestaurantExtraInfo}>
@@ -224,6 +267,8 @@ export default class Restaurant extends Component {
 
                     {this.loadButtonAddReview()}
 
+
+                    <Text style={styles.commentTitle}>{!noComments ? "Comentarios" : "Sin comentarios aún"}</Text>
                     {this.renderFlatList(reviews)}
 
                 </View>
@@ -235,6 +280,9 @@ export default class Restaurant extends Component {
 const styles = {
     viewBody: {
         flex: 1
+    },
+    viewImage: {
+        width: "100%"
     },
     imageRestaurant: {
         width: "100%"
@@ -285,11 +333,35 @@ const styles = {
         borderBottomColor: "#e3e3e3",
         borderBottomWidth: 1
     },
-    viewImage: {
+    viewImageAvatar: {
         marginRight: 15
     },
     imageAvatarUser: {
         width: 50,
         height: 50
+    },
+    viewInfo: {
+        flex: 1,
+        alignItems: "flex-start"
+    },
+    reviewTitle: {
+        fontWeight: "bold"
+    },
+    reviewText: {
+        paddingTop: 2,
+        color: "grey",
+        marginBottom: 5
+    },
+    reviewDate: {
+        marginTop: 5,
+        color: "grey",
+        fontSize: 12
+    },
+    commentTitle: {
+        fontSize: 20,
+        textAlign: "center",
+        marginTop: 20,
+        marginBottom: 10,
+        fontWeight: "bold"
     }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator, KeyboardAvoidingView } from "react-native";
 import t from "tcomb-form-native";
 const Form = t.form.Form;
 import { AddRestaurantOptions, AddRestaurantStruct } from "../../forms/AddRestaurantForm";
@@ -74,7 +74,7 @@ export default class AddRestaurant extends Component {
     addRestaurant = () => {
         const { imageUriRestaurant, } = this.state;
         const { name, city, address, description } = this.state.formData;
-       
+
         if (imageUriRestaurant && name && city && address && description) {
             this.setState({ loading: true })
             const data = {
@@ -83,7 +83,7 @@ export default class AddRestaurant extends Component {
                 address,
                 description,
                 image: "",
-                createAt: new Date()
+                createdAt: new Date()
             }
 
             db.collection("restaurants").add(data).then(resolve => {
@@ -120,67 +120,70 @@ export default class AddRestaurant extends Component {
     }
 
     render() {
-       
+
         //console.log(this.state)
         const { imageUriRestaurant } = this.state;
         return (
-            <ScrollView>
-                <View style={styles.container}>
-                    <View style={styles.viewPhoto}>
-                        {this.isImageRestaurant(imageUriRestaurant)}
-                    </View>
-                    <Form
-                        refs="addRestaurantForm"
-                        type={AddRestaurantStruct}
-                        options={AddRestaurantOptions}
-                        value={this.state.formData}
-                        onChange={formValue => this.onChangeFormAddRestaurant(formValue)}
-                    />
-                    <View style={styles.viewIconUpload}>
-                        <Icon
-                            iconStyle={styles.addPhotoIcon}
-                            name="camera"
-                            type="material-community"
-                            color="#7A7A7A"
-                            onPress={() => this.uploadImageToState()}
-                        />
-                    </View>
-
-                    <View style={styles.viewButtonAdd}>
-                        <Button
-                            buttonStyle={styles.btnAddRestaurant}
-                            title="Crear restaurante"
-                            onPress={() => this.addRestaurant()}
-
-                        />
-                    </View>
-
-                    <Overlay
-                        overlayStyle={styles.overlayLoading}
-                        isVisible={this.state.loading}
-                        width="auto"
-                        height="auto"
-                    >
-
-                        <View>
-                            <Text style={styles.overlayLoadingText}>Creando restaurante</Text>
-                            <ActivityIndicator size="large" color="#00a680" />
+            <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+                <ScrollView>
+                    <View style={styles.containerView}>
+                        <View style={styles.viewPhoto}>
+                            {this.isImageRestaurant(imageUriRestaurant)}
                         </View>
-                    </Overlay>
+                        <Form
+                            refs="addRestaurantForm"
+                            type={AddRestaurantStruct}
+                            options={AddRestaurantOptions}
+                            value={this.state.formData}
+                            onChange={formValue => this.onChangeFormAddRestaurant(formValue)}
+                        />
+                        <View style={styles.viewIconUpload}>
+                            <Icon
+                                iconStyle={styles.addPhotoIcon}
+                                name="camera"
+                                type="material-community"
+                                color="#7A7A7A"
+                                onPress={() => this.uploadImageToState()}
+                            />
+                        </View>
 
-                    <Toast
-                        ref="toast"
-                        position="bottom"
-                        positionValue={250}
-                        fadeInDuration={250}
-                        fadeOutDuration={250}
-                        opacity={0.8}
-                        textStyle={{ color: "white" }}
-                    />
+                        <View style={styles.viewButtonAdd}>
+                            <Button
+                                buttonStyle={styles.btnAddRestaurant}
+                                title="Crear restaurante"
+                                onPress={() => this.addRestaurant()}
+
+                            />
+                        </View>
+
+                        <Overlay
+                            overlayStyle={styles.overlayLoading}
+                            isVisible={this.state.loading}
+                            width="auto"
+                            height="auto"
+                        >
+
+                            <View>
+                                <Text style={styles.overlayLoadingText}>Creando restaurante</Text>
+                                <ActivityIndicator size="large" color="#00a680" />
+                            </View>
+                        </Overlay>
+
+                        <Toast
+                            ref="toast"
+                            position="bottom"
+                            positionValue={250}
+                            fadeInDuration={250}
+                            fadeOutDuration={250}
+                            opacity={0.8}
+                            textStyle={{ color: "white" }}
+                        />
 
 
-                </View>
-            </ScrollView>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+
         )
     }
 }
@@ -193,6 +196,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "#FFF",
         margin: 20
+    },
+    containerView: {
+        flex: 1,
+        backgroundColor: "#FFF",
+        justifyContent: "center",
+        backgroundColor: "#FFF",
     },
     viewPhoto: {
         alignItems: "center",
