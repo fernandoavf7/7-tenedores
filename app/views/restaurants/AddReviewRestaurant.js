@@ -54,11 +54,29 @@ export default class AddReviewRestaurant extends Component {
                     createdAt: new Date()
                 }
                 db.collection("reviews").add(data).then(() => {
-                    this.setState({ loading: false });
-                    this.refs.toast.show("Review ingresada correctamente", 1500, () => {
-                        this.props.navigation.state.params.loadReviews();
-                        this.props.navigation.goBack();
-                    });
+
+                    const restaurantRef = db.collection("restaurants").doc(this.props.navigation.state.params.id);
+                    restaurantRef.get().then(response => {
+                        const restaurantData = response.data();
+                        const ratingTotal = restaurantData.ratingTotal + ratingValue;
+                        const quantityVoting = restaurantData.quantityVoting + 1;
+                        const rating = ratingTotal / quantityVoting;
+                        console.log("===========asasaas=========");
+                        console.log(ratingTotal);
+                        console.log(quantityVoting);
+                        console.log(rating);
+                        console.log("===========asasaas=========");
+                        
+                        restaurantRef.update({ ratingTotal, quantityVoting, rating }).then(() => {
+                            this.setState({ loading: false });
+                            this.refs.toast.show("Review ingresada correctamente", 1500, () => {
+                                this.props.navigation.state.params.loadReviews();
+                                this.props.navigation.goBack();
+                            });
+                        })
+                    })
+
+
 
                 }).catch(error => {
                     this.refs.toast.show("Error inesperado de comunicación, intentelo más tarde", 1500)

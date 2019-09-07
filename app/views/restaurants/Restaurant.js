@@ -34,6 +34,7 @@ export default class Restaurant extends Component {
             limitReviews: 5,
             reviews: null,
             averageRating: 0,
+            startReviews: null
         }
     }
 
@@ -54,12 +55,14 @@ export default class Restaurant extends Component {
         let resultReviews = [];
         let arrayRating = [];
 
-
-
-        const reviews = db.collection("reviews").where("idRestaurant", "==", id).limit(limitReviews);
+        const reviews = db.collection("reviews")
+            .where("idRestaurant", "==", id)
+           // .orderBy("createdAt", "desc")
+            .limit(limitReviews)
+           
 
         return await reviews.get().then(response => {
-            this.setState({ startReview: response.docs[response.docs.length - 1] });
+            this.setState({ startReviews: response.docs[response.docs.length - 1] });
 
 
             response.forEach(doc => {
@@ -82,6 +85,49 @@ export default class Restaurant extends Component {
             this.setState({ reviews: resultReviews, averageRating: ResultAverageRating });
         })
     }
+
+    handleLoadMore = async () => {
+        console.log("handleeee more restaurant.js ")
+     /*   const { limitReviews, startReviews } = this.state;
+        const { id } = this.props.navigation.state.params.restaurant.item.restaurant;
+
+        let resultReviews = [];
+
+        this.state.reviews.forEach(doc => {
+            resultReviews.push(doc);
+        });
+
+        const reviewesDb = db
+            .collection("reviews")
+            .where("idRestaurant", "==", id)
+           // .orderBy("createdAt", "desc")
+            .startAfter(startReviews.data().createdAt)
+            .limit(limitReviews);
+
+        await reviewesDb.get().then(response => {
+            if (response.docs.length > 0) {
+                this.setState({
+                    startReviews: response.docs[response.docs.length - 1]
+                });
+            } else {
+                this.setState({
+                    isLoading: false
+                });
+            }
+
+            response.forEach(doc => {
+                let review = doc.data();
+                review.id = doc.id;
+                resultReviews.push({ review });
+            });
+
+            this.setState({
+                reviews: resultReviews
+            });
+        });
+*/
+    }
+
 
     checkUserLogin = () => {
         if (this.state.currentUser != null) {
@@ -153,6 +199,7 @@ export default class Restaurant extends Component {
         }
     }
 
+
     renderFlatList = reviews => {
         if (reviews) {
             //  this.setState({noComments: false})
@@ -161,7 +208,8 @@ export default class Restaurant extends Component {
                     data={reviews}
                     renderItem={this.renderRow}
                     keyExtractor={(item, index) => index.toString()}
-                    onEndReachedThreshold={0.5}
+                    onEndReached={this.handleLoadMore}
+                    onEndReachedThreshold={0.1}
                 />
             )
         } else {
@@ -178,7 +226,7 @@ export default class Restaurant extends Component {
     renderRow = (reviewData) => {
         const { title, review, rating, idUser, createdAt, avatarUser } = reviewData.item;
         const createdReviewDate = new Date(createdAt.seconds * 1000)
-        console.log(createdReviewDate);
+        // console.log(createdReviewDate);
 
         return (
             <View style={styles.viewReview}>
@@ -209,6 +257,9 @@ export default class Restaurant extends Component {
 
 
     render() {
+
+        console.log(this.state.startReview);
+
         const { id, name, city, address, description, image } = this.props.navigation.state.params.restaurant.item.restaurant;
         const listExtraInfo = [
             {
@@ -228,50 +279,50 @@ export default class Restaurant extends Component {
         }
 
         return (
-            <ScrollView>
-                <View style={styles.viewBody}>
-                    <View style={styles.viewImage}>
-                        <Image
-                            source={{ uri: image }}
-                            placeholderContent={<ActivityIndicator />}
-                            style={styles.imageRestaurant}
+            <ScrollView style={styles.viewBody}>
+
+                <View style={styles.viewImage}>
+                    <Image
+                        source={{ uri: image }}
+                        placeholderContent={<ActivityIndicator />}
+                        style={styles.imageRestaurant}
+                    />
+                </View>
+
+                <View style={styles.viewRestaurantBasicInfo}>
+                    <View>
+                        <Text style={styles.nameRestaurant}>{name}</Text>
+                        <Rating
+                            style={{ position: "absolute", right: 0 }}
+                            imageSize={20}
+                            readonly
+                            startingValue={averageRating}
                         />
                     </View>
+                    <Text style={styles.descriptionRestaurant}>{description}</Text>
+                </View>
 
-                    <View style={styles.viewRestaurantBasicInfo}>
-                        <View>
-                            <Text style={styles.nameRestaurant}>{name}</Text>
-                            <Rating
-                                style={{ position: "absolute", right: 0 }}
-                                imageSize={20}
-                                readonly
-                                startingValue={averageRating}
-                            />
-                        </View>
-                        <Text style={styles.descriptionRestaurant}>{description}</Text>
-                    </View>
-
-                    <View style={styles.viewRestaurantExtraInfo}>
-                        <Text style={styles.restaurantExtraInfoTitle}>
-                            Información sobre el restaurante
+                <View style={styles.viewRestaurantExtraInfo}>
+                    <Text style={styles.restaurantExtraInfoTitle}>
+                        Información sobre el restaurante
                         </Text>
-                        {listExtraInfo.map((item, index) => (
-                            <ListItem
-                                key={index}
-                                title={item.text}
-                                leftIcon={<Icon name={item.iconName} type={item.iconType} />}
-                            />
-                        ))}
-
-                    </View>
-
-                    {this.loadButtonAddReview()}
-
-
-                    <Text style={styles.commentTitle}>{!noComments ? "Comentarios" : "Sin comentarios aún"}</Text>
-                    {this.renderFlatList(reviews)}
+                    {listExtraInfo.map((item, index) => (
+                        <ListItem
+                            key={index}
+                            title={item.text}
+                            leftIcon={<Icon name={item.iconName} type={item.iconType} />}
+                        />
+                    ))}
 
                 </View>
+
+                {this.loadButtonAddReview()}
+
+
+                <Text style={styles.commentTitle}>{!noComments ? "Comentarios" : "Sin comentarios aún"}</Text>
+                {this.renderFlatList(reviews)}
+
+
             </ScrollView>
         );
     }
