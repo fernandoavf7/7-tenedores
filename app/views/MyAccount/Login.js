@@ -80,6 +80,24 @@ export default class Login extends Component {
         }
     }
 
+    loginGoogle = async () => {
+        const { type, token } = await Facebook.logInWithReadPermissionsAsync(FacebookApi.application_id
+            , { permissions: FacebookApi.permissions });
+        if (type == "success") {
+            const credential = firebase.auth.FacebookAuthProvider.credential(token);
+            firebase.auth().signInWithCredential(credential).then(resolve => {
+                this.refs.toast.show('Ha iniciado sesión', 250);
+                this.props.navigation.goBack();
+            }).catch(error => {
+                this.refs.toast.show('Ha ocurrido un error, intentelo más tarde', 250);
+            })
+        } else if (type == "cancel") {
+            this.refs.toast.show('Inicio de sesión cancelado', 250);
+        } else {
+            this.refs.toast.show('Ha ocurrido un error, intentelo más tarde', 250);
+        }
+    }
+
     onChangeFormRegister = (formValue) => {
         this.setState({ formData: formValue })
     }

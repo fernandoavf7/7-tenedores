@@ -55,11 +55,14 @@ export default class Restaurant extends Component {
         let resultReviews = [];
         let arrayRating = [];
 
-        const reviews = db.collection("reviews")
+        console.log("id")
+        console.log(id)
+        const reviews = db
+            .collection("reviews")
+            .orderBy("createdAt", "desc")
             .where("idRestaurant", "==", id)
-           // .orderBy("createdAt", "desc")
             .limit(limitReviews)
-           
+
 
         return await reviews.get().then(response => {
             this.setState({ startReviews: response.docs[response.docs.length - 1] });
@@ -88,44 +91,52 @@ export default class Restaurant extends Component {
 
     handleLoadMore = async () => {
         console.log("handleeee more restaurant.js ")
-     /*   const { limitReviews, startReviews } = this.state;
-        const { id } = this.props.navigation.state.params.restaurant.item.restaurant;
+           const { limitReviews, startReviews } = this.state;
+           const { id } = this.props.navigation.state.params.restaurant.item.restaurant;
+   
+           let resultReviews = [];
+   
+           this.state.reviews.forEach(doc => {
+               resultReviews.push(doc);
+           });
+   
+        /*   const reviewesDb = db
+               .collection("reviews")
+               .where("idRestaurant", "==", id)
+              // .orderBy("createdAt", "desc")
+               .startAfter(startReviews.data().createdAt)
+               .limit(limitReviews);*/
 
-        let resultReviews = [];
-
-        this.state.reviews.forEach(doc => {
-            resultReviews.push(doc);
-        });
-
-        const reviewesDb = db
-            .collection("reviews")
-            .where("idRestaurant", "==", id)
-           // .orderBy("createdAt", "desc")
-            .startAfter(startReviews.data().createdAt)
-            .limit(limitReviews);
-
-        await reviewesDb.get().then(response => {
-            if (response.docs.length > 0) {
-                this.setState({
-                    startReviews: response.docs[response.docs.length - 1]
-                });
-            } else {
-                this.setState({
-                    isLoading: false
-                });
-            }
-
-            response.forEach(doc => {
-                let review = doc.data();
-                review.id = doc.id;
-                resultReviews.push({ review });
-            });
-
-            this.setState({
-                reviews: resultReviews
-            });
-        });
-*/
+               const reviewesDb = db
+               .collection("reviews")
+               .orderBy("createdAt", "desc")
+               .where("idRestaurant", "==", id)
+               .startAfter(startReviews.data().createdAt)
+               .limit(limitReviews)
+   
+      
+           await reviewesDb.get().then(response => {
+               if (response.docs.length > 0) {
+                   this.setState({
+                       startReviews: response.docs[response.docs.length - 1]
+                   });
+               } else {
+                   this.setState({
+                       isLoading: false
+                   });
+               }
+       
+               response.forEach(doc => {
+                   let review = doc.data();
+                   review.id = doc.id;
+                   resultReviews.push({ review });
+               });
+   
+               this.setState({
+                   reviews: resultReviews
+               });
+           });
+   
     }
 
 
@@ -200,6 +211,11 @@ export default class Restaurant extends Component {
     }
 
 
+ctm = () =>{
+    console.log("aaaaaaaaaaaaaaaaaaaaa");
+    
+}
+
     renderFlatList = reviews => {
         if (reviews) {
             //  this.setState({noComments: false})
@@ -208,8 +224,6 @@ export default class Restaurant extends Component {
                     data={reviews}
                     renderItem={this.renderRow}
                     keyExtractor={(item, index) => index.toString()}
-                    onEndReached={this.handleLoadMore}
-                    onEndReachedThreshold={0.1}
                 />
             )
         } else {
@@ -224,7 +238,24 @@ export default class Restaurant extends Component {
     }
 
     renderRow = (reviewData) => {
-        const { title, review, rating, idUser, createdAt, avatarUser } = reviewData.item;
+       
+        let objReview = {
+            review: null
+        }
+
+        objReview.review = reviewData;
+
+        //object changes with new parameters, its nesserary parse level
+        if(objReview.review.item.createdAt == null){
+            objReview.review = objReview.review.item.review;
+        }else{
+            objReview.review = reviewData.item;
+        }
+
+        const { title, review, rating, idUser, createdAt, avatarUser } = objReview.review;
+
+      
+        //const { title, review, rating, idUser, createdAt, avatarUser } = reviewData.item;
         const createdReviewDate = new Date(createdAt.seconds * 1000)
         // console.log(createdReviewDate);
 
@@ -322,7 +353,7 @@ export default class Restaurant extends Component {
                 <Text style={styles.commentTitle}>{!noComments ? "Comentarios" : "Sin comentarios aún"}</Text>
                 {this.renderFlatList(reviews)}
 
-
+                        <Button title="Cargar más" buttonStyle={{backgroundColor: "#00a680", marginBottom: 20}} onPress={this.handleLoadMore}/>
             </ScrollView>
         );
     }
