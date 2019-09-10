@@ -10,6 +10,7 @@ import Toast, { DURATION } from "react-native-easy-toast";
 import { FacebookApi } from "../../utils/Social"
 import Expo from 'expo';
 import * as Facebook from 'expo-facebook';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 export default class Login extends Component {
@@ -85,46 +86,55 @@ export default class Login extends Component {
 
     render() {
         return (
-            <View style={styles.viewBody}>
-                <Image
-                    source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
-                    style={styles.logo}
-                    PlaceholderContent={<ActivityIndicator />}
-                    resizeMode="contain"
-                />
-                <Form
-                    ref="loginForm"
-                    type={LoginStruct}
-                    options={LoginOptions}
-                    value={this.state.formData}
-                    onChange={v => this.onChangeFormRegister(v)}
-                />
-                <Button title="Ingresar" onPress={() => this.login()} />
-                <Text style={styles.textRegister}>¿Aún no tienes una cuenta?{" "}
-                <Text style={styles.buttonRegister} onPress={()=> this.props.navigation.navigate("Register")}>Regístrate</Text>
-                </Text>
+            <ScrollView >
+                <View style={styles.viewBody}>
+                    <Image
+                        source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
+                        style={styles.logo}
+                        PlaceholderContent={<ActivityIndicator />}
+                        resizeMode="contain"
+                    />
+                    <Form
+                        ref="loginForm"
+                        type={LoginStruct}
+                        options={LoginOptions}
+                        value={this.state.formData}
+                        onChange={v => this.onChangeFormRegister(v)}
+                    />
+                    <Button title="Ingresar" onPress={() => this.login()} />
+                    <Text style={styles.textRegister}>¿Aún no tienes una cuenta?{" "}
+                        <Text style={styles.buttonRegister} onPress={() => this.props.navigation.navigate("Register")}>Regístrate</Text>
+                    </Text>
 
 
-                <Text style={styles.formErrorMessage}>{this.state.formErrorMessage}</Text>
-                <Toast
-                    ref="toast"
-                    style={{ backgroundColor: 'black' }}
-                    position='bottom'
-                    positionValue={200}
-                    fadeInDuration={750}
-                    fadeOutDuration={1000}
-                    opacity={0.8}
-                    textStyle={{ color: 'white' }}
-                />
+                    <Text style={styles.formErrorMessage}>{this.state.formErrorMessage}</Text>
+                    <Toast
+                        ref="toast"
+                        style={{ backgroundColor: 'black' }}
+                        position='bottom'
+                        positionValue={200}
+                        fadeInDuration={750}
+                        fadeOutDuration={1000}
+                        opacity={0.8}
+                        textStyle={{ color: 'white' }}
+                    />
 
-                <Divider style={styles.divider} />
-                <SocialIcon
-                    title='Ingresa con Facebook'
-                    button
-                    type='facebook'
-                    onPress={() => this.loginFacebook()}
-                />
-            </View>
+                    <Divider style={styles.divider} />
+                    <SocialIcon
+                        title='Ingresa con Facebook'
+                        button
+                        type='facebook'
+                        onPress={() => this.loginFacebook()}
+                    />
+
+                    <SocialIcon
+                        title='Ingresa con Google'
+                        button
+                        type='youtube'
+                        onPress={() => this.loginFacebook()}
+                    />
+                </View>
+            </ScrollView>
         )
     }
 }
@@ -134,9 +144,8 @@ const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: "center",
         //alignItems: "center",
-        marginTop: 40,
-        marginLeft: 40,
-        marginRight: 40
+        padding: 20,
+        paddingBottom: 40
     },
     logo: {
         justifyContent: "center",

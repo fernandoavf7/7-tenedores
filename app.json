@@ -24,6 +24,7 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.neocorest.sietetenedores",
       "supportsTablet": true
     },
     "android": {
